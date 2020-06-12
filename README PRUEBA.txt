@@ -1,4 +1,0 @@
-# MagisterIA
-
-PRUEBA DE MANUEL RAMOS
-
