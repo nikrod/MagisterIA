@@ -66,8 +66,8 @@ estructuraRespuestas = [
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
-numeroVuelos = len(vuelos)
-numeroEmpleados = len(nombresEmpleados)
+numeroVuelos = len(vuelos) #10
+numeroEmpleados = len(nombresEmpleados) #20
 
 def solucion(sols):
     solver = pywrapcp.Solver('Crew')
