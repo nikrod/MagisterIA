@@ -123,7 +123,7 @@ def solucion(sols):
         print ("Number working:", num_working.Value())
         for i in range(numeroVuelos):
             for j in range(numeroEmpleados):
-                print str(crew[i,j].Value()),
+                print crew[i,j].Value(),
             print '\n'
 
         if num_solutions >= sols:
