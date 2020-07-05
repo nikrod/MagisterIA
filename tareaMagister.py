@@ -60,7 +60,7 @@ estructuraRespuestas = [
 numeroVuelos = len(vuelos) #10
 numeroEmpleados = len(nombresEmpleados) #20
 
-def solucion(sols):
+def solucion(cantidadSoluciones):
 
     #se definen las variables
     solver = pywrapcp.Solver('tripulacion')
@@ -70,20 +70,15 @@ def solucion(sols):
         for j in range(numeroEmpleados):
             tripulacion[(i,j)] = solver.IntVar(0, 1, 'tripulacion[%i,%i]' % (i, j)) #Se genera matriz con valores de dominio entre 0 y 1
 
-    crew_flat=[] #se crea arreglo con todos los valores de la matriz
+    arregloTripulacion=[] #se crea arreglo con todos los valores de la matriz
     for i in range(numeroVuelos) :
         for j in range(numeroEmpleados):
-            crew_flat.append(tripulacion[i,j])
-    #print(len(crew_flat))
+            arregloTripulacion.append(tripulacion[i,j])
 
-    #crew_flat2 = [tripulacion[(i,j)] for i in range(numeroVuelos) for j in range(numeroEmpleados)] #se puede cambiar por que se hizo
-    #print(len(crew_flat2))
+    cantidadEmpleados = solver.IntVar(1, numeroEmpleados)
 
-    dominioCantidadEmpleados = solver.IntVar(1, numeroEmpleados)
-    #print(dominioCantidadEmpleados)
-
-    # Se verifica que la cantidad de empleados no sea mayor que 20
-    solver.Add(dominioCantidadEmpleados == solver.Sum(
+    # Se verifica que la tripulacion no sea mayor que la cantidad de empleados
+    solver.Add(cantidadEmpleados == solver.Sum(
                             [solver.IsGreaterOrEqualCstVar(solver.Sum([tripulacion[(f,p)]
                                     for f in range(numeroVuelos)]), 1)
                                 for p in range(numeroEmpleados)]))
@@ -98,45 +93,37 @@ def solucion(sols):
         # se verifica los atributos de cada trabajador
         for j in range(5):
             tmp = [trabajadores[i][j]*tripulacion[(f,i)] for i in range(numeroEmpleados) ]
-            #print(solver.Sum(tmp))
             solver.Add(solver.Sum(tmp) >= vuelos[f][j+1])
 
-
-    # after a flight, break for at least two flights
-    for f in range(numeroVuelos-2):
-        for i in range(numeroEmpleados):
-            solver.Add(tripulacion[f,i] + tripulacion[f+1,i] + tripulacion[f+2,i] <= 1)
+    # se agrega condicion para que el trabajador no pueda pertenecer a una tripulacion por los dos siguientes viajes
+    for i in range(numeroVuelos-2):
+        for j in range(numeroEmpleados):
+            solver.Add(tripulacion[i,j] + tripulacion[i+1,j] + tripulacion[i+2,j] <= 1)
 
 
     #solution and search
     solution = solver.Assignment()
-    solution.Add(crew_flat)
-    solution.Add(dominioCantidadEmpleados)
+    solution.Add(arregloTripulacion)
+    solution.Add(cantidadEmpleados)
 
-    db = solver.Phase(crew_flat,solver.CHOOSE_FIRST_UNBOUND,solver.ASSIGN_MIN_VALUE)
+    db = solver.Phase(arregloTripulacion,solver.CHOOSE_FIRST_UNBOUND,solver.ASSIGN_MIN_VALUE)
     solver.NewSearch(db)
-    num_solutions = 0
 
     while solver.NextSolution():
-        num_solutions += 1
-        print ("Solution #%i" % num_solutions)
-        print ("Number working:", dominioCantidadEmpleados.Value())
+        solucionesEncontradas=0
+        solucionesEncontradas=solucionesEncontradas+1
         for i in range(numeroVuelos):
             for j in range(numeroEmpleados):
                 (tripulacion[i,j].Value()),
             print ('\n')
 
-        if num_solutions >= sols:
+        if cantidadSoluciones>=solucionesEncontradas:
             break
-    solver.EndSearch()
 
-    print ("num_solutions:", num_solutions)
-    print ("failures:", solver.Failures())
-    print ("branches:", solver.Branches())
-    print ("WallTime:", solver.WallTime())
-           
+    solver.EndSearch()
+         
 def main():
-    num_solutions_to_show = 2
-    solucion(num_solutions_to_show)
+    cantidadSoluciones=1
+    solucion(cantidadSoluciones)
 
 main()
