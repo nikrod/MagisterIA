@@ -101,23 +101,23 @@ def solucion(cantidadSoluciones):
             solver.Add(tripulacion[i,j] + tripulacion[i+1,j] + tripulacion[i+2,j] <= 1)
 
 
-    #solution and search
     solution = solver.Assignment()
     solution.Add(arregloTripulacion)
     solution.Add(cantidadEmpleados)
 
     db = solver.Phase(arregloTripulacion,solver.CHOOSE_FIRST_UNBOUND,solver.ASSIGN_MIN_VALUE)
     solver.NewSearch(db)
+    solucionesEncontradas=0
 
     while solver.NextSolution():
-        solucionesEncontradas=0
         solucionesEncontradas=solucionesEncontradas+1
         for i in range(numeroVuelos):
+            arrayTemp=[]
             for j in range(numeroEmpleados):
-                (tripulacion[i,j].Value()),
-            print ('\n')
+                arrayTemp.append(tripulacion[i,j].Value())
+            print(arrayTemp)
 
-        if cantidadSoluciones>=solucionesEncontradas:
+        if solucionesEncontradas>=cantidadSoluciones:
             break
 
     solver.EndSearch()
